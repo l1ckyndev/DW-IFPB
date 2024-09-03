@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Table</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: none;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: none;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr {
+            background-color: white;
+            border: none;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-around;
+        }
+    </style>
+</head>
+<body>
+    <h1>IP Table</h1>
+
+    <form id="data-form">
+        <input type="hidden" id="edit-index" value="-1"> <!-- Campo oculto para armazenar o índice do item sendo editado -->
+        <input type="text" id="IP" placeholder="IP" required autofocus/>
+        <input type="text" id="Mask" placeholder="Mask" required />
+        <input type="text" id="Version" placeholder="Version" />
+        <input type="submit" value="Add"/>
+    </form>
+    <div id="table-container">
+        <table id="ip-table">
+            <thead>
+                <tr>
+                    <th>IP</th>
+                    <th>Mask</th>
+                    <th>Version</th>
+                    <th>Actions</th> 
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        let dataList = [];
+
+        function createTable(data) {
+            const tbody = document.querySelector('#ip-table tbody');
+            tbody.innerHTML = '';
+
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+
+                const tdIP = document.createElement('td');
+                tdIP.textContent = item.IP;
+                row.appendChild(tdIP);
+
+                const tdMask = document.createElement('td');
+                tdMask.textContent = item.Mask;
+                row.appendChild(tdMask);
+
+                const tdVersion = document.createElement('td');
+                tdVersion.textContent = item.Version;
+                row.appendChild(tdVersion);
+
+                const tdActions = document.createElement('td');
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.addEventListener('click', () => editRow(index)); // Passa o índice para a função de edição
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => deleteRow(index)); // Passa o índice para a função de exclusão
+
+                tdActions.appendChild(editButton);
+                tdActions.appendChild(deleteButton);
+                row.appendChild(tdActions);
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function isDuplicateIP(ip) {
+            return dataList.some(item => item.IP === ip);
+        }
+
+        function addData(event) {
+            event.preventDefault();
+            const IP = document.getElementById('IP').value;
+            const Mask = document.getElementById('Mask').value;
+            const Version = document.getElementById('Version').value || '-';
+
+            const editIndex = parseInt(document.getElementById('edit-index').value);
+
+            if (IP && Mask) {
+                if (editIndex === -1) {
+                    // Adicionar novo item
+                    if (!isDuplicateIP(IP)) {
+                        dataList.push({ IP, Mask, Version });
+                    } else {
+                        alert('IP já existe.');
+                    }
+                } else {
+                    // Editar item existente
+                    dataList[editIndex] = { IP, Mask, Version };
+                    document.getElementById('edit-index').value = -1; // Resetar o índice de edição
+                }
+
+                createTable(dataList);
+                document.getElementById('data-form').reset();
+            } else {
+                alert('Campos obrigatórios não preenchidos.');
+            }
+        }
+
+        function editRow(index) {
+            const item = dataList[index];
+            document.getElementById('IP').value = item.IP;
+            document.getElementById('Mask').value = item.Mask;
+            document.getElementById('Version').value = item.Version;
+            document.getElementById('edit-index').value = index; // Armazenar o índice do item sendo editado
+        }
+
+        function deleteRow(index) {
+            dataList.splice(index, 1);
+            createTable(dataList);
+            document.getElementById('edit-index').value = -1; // Resetar o índice de edição se estiver deletando
+        }
+
+        document.getElementById('data-form').addEventListener('submit', addData);
+    </script>
+</body>
+</html>

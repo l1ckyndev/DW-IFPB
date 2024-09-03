@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>List Generator</h1>
+    <form>
+        <label for="count">Number of Items:</label>
+        <input name="count" type="number" placeholder="Digite um valor" autofocus />
+        <input type="submit" value="Generate" />
+        
+    </form>
+    <ul></ul>
+    <script>
+        function generateItems(count) {
+            return Array.from({ length: count })
+          .map((_, index) => `<li>Item ${index + 1}</li>`)
+          .join('');
+        }
+
+        const form = document.querySelector('form');
+
+        form.onsubmit = (event) => {
+        event.preventDefault();
+
+        const data = new FormData(form);
+        const count = data.get('count');
+        const items = generateItems(count);
+        const list = document.querySelector('ul');
+
+        list.innerHTML = items;
+
+        // reset form
+        form.reset();
+        };
+    </script>
+
+</body>
+</html>
+  
